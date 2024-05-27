@@ -3,17 +3,19 @@ import { useState } from 'react'
 import AddRoomForm from '../../../../components/Form/AddRoomForm'
 // import useAuth from '../../../hooks/useAuth'
 // import { imageUpload } from '../../../api/utils'
+import { imageUpload } from '../../../../api/utils'
 import { Helmet } from 'react-helmet-async'
 import { useMutation } from '@tanstack/react-query'
 // import useAxiosSecure from '../../../hooks/useAxiosSecure'
 import toast from 'react-hot-toast'
 import { useNavigate } from 'react-router-dom'
 import useAuth from '../../../../hooks/useAuth'
+import useAxiosSecure from '../../../../hooks/useAxiosSecure'
 
 
 const AddRoom = () => {
   const navigate = useNavigate()
-  // const axiosSecure = useAxiosSecure()
+  const axiosSecure = useAxiosSecure()
   const [loading, setLoading] = useState(false)
   const { user } = useAuth()
   const [imagePreview, setImagePreview] = useState()
@@ -29,18 +31,18 @@ const AddRoom = () => {
     setDates(item.selection)
   }
 
-  // const { mutateAsync } = useMutation({
-  //   mutationFn: async roomData => {
-  //     const { data } = await axiosSecure.post(`/room`, roomData)
-  //     return data
-  //   },
-  //   onSuccess: () => {
-  //     console.log('Data Saved Successfully')
-  //     toast.success('Room Added Successfully!')
-  //     navigate('/dashboard/my-listings')
-  //     setLoading(false)
-  //   },
-  // })
+  const { mutateAsync } = useMutation({
+    mutationFn: async roomData => {
+      const { data } = await axiosSecure.post(`/room`, roomData)
+      return data
+    },
+    onSuccess: () => {
+      console.log('Data Saved Successfully')
+      toast.success('Room Added Successfully!')
+      navigate('/dashboard/my-listings')
+      setLoading(false)
+    },
+  })
 
   //   Form handler
   const handleSubmit = async e => {
@@ -64,7 +66,7 @@ const AddRoom = () => {
       image: user?.photoURL,
       email: user?.email,
     }
-
+    
     try {
       const image_url = await imageUpload(image)
       const roomData = {
@@ -84,7 +86,7 @@ const AddRoom = () => {
       console.table(roomData)
 
       //   Post request to server
-      await mutateAsync(roomData)
+    await mutateAsync(roomData)
     } catch (err) {
       console.log(err)
       toast.error(err.message)
@@ -97,6 +99,8 @@ const AddRoom = () => {
     setImagePreview(URL.createObjectURL(image))
     setImageText(image.name)
   }
+
+  
 
 
   return (
